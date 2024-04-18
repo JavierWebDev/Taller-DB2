@@ -840,3 +840,269 @@ WHERE e.id_departamento = d.id_departamento AND e.apellido2 IS NULL;
 +--------------+
 ```
 
+---
+
+## Consultas Multitabla (Composicion Externa)
+
+**Resuelva todas las consultas utilizando las cláusulas LEFT JOIN y RIGHT JOIN.**
+
+**1.** Devuelve un listado con todos los empleados junto con los datos de los departamentos donde trabajan. Este listado también debe incluir los empleados que no tienen ningún departamento asociado.
+
+```sql
+SELECT e.nombre, d.id_departamento, d.nombre, d.presupuesto, d.gastos
+FROM empleado AS e 
+LEFT JOIN departamento AS d 
+ON e.id_departamento = d.id_departamento;
+
++--------------+-----------------+------------------+-------------+--------+
+| nombre       | id_departamento | nombre           | presupuesto | gastos |
++--------------+-----------------+------------------+-------------+--------+
+| Aarón        |               1 | Desarrollo       |      120000 |   6000 |
+| Adela        |               2 | Sistemas         |      150000 |  21000 |
+| Adolfo       |               3 | Recursos Humanos |      280000 |  25000 |
+| Adrián       |               4 | Contabilidad     |      110000 |   3000 |
+| Marcos       |               5 | I+D              |      375000 | 380000 |
+| María        |               1 | Desarrollo       |      120000 |   6000 |
+| Pilar        |               2 | Sistemas         |      150000 |  21000 |
+| Pepe         |               3 | Recursos Humanos |      280000 |  25000 |
+| Juan         |               2 | Sistemas         |      150000 |  21000 |
+| Diego        |               5 | I+D              |      375000 | 380000 |
+| Marta        |               1 | Desarrollo       |      120000 |   6000 |
+| Irene        |            NULL | NULL             |        NULL |   NULL |
+| Juan Antonio |            NULL | NULL             |        NULL |   NULL |
++--------------+-----------------+------------------+-------------+--------+
+```
+
+**2.** Devuelve un listado con los empleados y los datos de los departamentos donde trabaja cada uno. Ordena el resultado, en primer lugar por el nombre del departamento (en orden alfabético) y en segundo lugar por los apellidos y el nombre de los empleados.
+
+```sql
+SELECT e.nombre, d.id_departamento, d.nombre, d.presupuesto, d.gastos
+FROM empleado AS e 
+LEFT JOIN departamento AS d 
+ON e.id_departamento = d.id_departamento
+ORDER BY d.nombre ASC, e.apellido1 ASC, e.apellido2 ASC;
++--------------+-----------------+------------------+-------------+--------+
+| nombre       | id_departamento | nombre           | presupuesto | gastos |
++--------------+-----------------+------------------+-------------+--------+
+| Juan Antonio |            NULL | NULL             |        NULL |   NULL |
+| Irene        |            NULL | NULL             |        NULL |   NULL |
+| Adrián       |               4 | Contabilidad     |      110000 |   3000 |
+| Marta        |               1 | Desarrollo       |      120000 |   6000 |
+| Aarón        |               1 | Desarrollo       |      120000 |   6000 |
+| María        |               1 | Desarrollo       |      120000 |   6000 |
+| Diego        |               5 | I+D              |      375000 | 380000 |
+| Marcos       |               5 | I+D              |      375000 | 380000 |
+| Adolfo       |               3 | Recursos Humanos |      280000 |  25000 |
+| Pepe         |               3 | Recursos Humanos |      280000 |  25000 |
+| Juan         |               2 | Sistemas         |      150000 |  21000 |
+| Pilar        |               2 | Sistemas         |      150000 |  21000 |
+| Adela        |               2 | Sistemas         |      150000 |  21000 |
++--------------+-----------------+------------------+-------------+--------+
+```
+
+**3.** Devuelve un listado donde sólo aparezcan aquellos departamentos que no tienen ningún empleado asociado.
+
+```sql
+SELECT d.nombre
+FROM departamento as d
+LEFT JOIN empleado as e
+ON e.id_departamento = d.id_departamento
+WHERE e.id_departamento IS NULL;
++------------+
+| nombre     |
++------------+
+| Proyectos  |
+| Publicidad |
++------------+
+```
+
+**4.** Devuelve un listado con todos los empleados junto con los datos de los departamentos donde trabajan. El listado debe incluir los empleados que no tienen ningún departamento asociado y los departamentos que no tienen ningún empleado asociado. Ordene el listado alfabéticamente por el nombre del departamento.
+
+```sql
+SELECT e.nombre, d.nombre, d.id_departamento, d.presupuesto
+FROM departamento AS d
+LEFT JOIN empleado AS e
+ON e.id_departamento = d.id_departamento
+ORDER BY d.nombre ASC;
++---------+------------------+-----------------+-------------+
+| nombre  | nombre           | id_departamento | presupuesto |
++---------+------------------+-----------------+-------------+
+| Adrián  | Contabilidad     |               4 |      110000 |
+| Aarón   | Desarrollo       |               1 |      120000 |
+| María   | Desarrollo       |               1 |      120000 |
+| Marta   | Desarrollo       |               1 |      120000 |
+| Marcos  | I+D              |               5 |      375000 |
+| Diego   | I+D              |               5 |      375000 |
+| NULL    | Proyectos        |               6 |           0 |
+| NULL    | Publicidad       |               7 |           0 |
+| Adolfo  | Recursos Humanos |               3 |      280000 |
+| Pepe    | Recursos Humanos |               3 |      280000 |
+| Adela   | Sistemas         |               2 |      150000 |
+| Pilar   | Sistemas         |               2 |      150000 |
+| Juan    | Sistemas         |               2 |      150000 |
++---------+------------------+-----------------+-------------+
+```
+
+**5.** Devuelve un listado con los empleados que no tienen ningún departamento asociado y los departamentos que no tienen ningún empleado asociado. Ordene el listado alfabéticamente por el nombre del departamento.
+
+```sql
+(SELECT e.nombre AS Nombre, 'Empleado sin departamento' AS Tipo
+FROM empleado AS e
+WHERE e.id_departamento IS NULL)
+
+UNION
+
+(SELECT d.nombre AS Nombre, 'Departamento sin empleados' AS Tipo
+FROM departamento AS d
+WHERE d.id_departamento NOT IN (SELECT id_departamento FROM empleado));
++--------------+---------------------------+
+| Nombre       | Tipo                      |
++--------------+---------------------------+
+| Irene        | Empleado sin departamento |
+| Juan Antonio | Empleado sin departamento |
++--------------+---------------------------+
+```
+
+---
+
+## Consultas Resumen
+
+**1.** Calcula la suma del presupuesto de todos los departamentos.
+
+```sql
+SELECT SUM(presupuesto)
+FROM departamento;
++------------------+
+| SUM(presupuesto) |
++------------------+
+|          1035000 |
++------------------+
+```
+
+**2.** Calcula la media del presupuesto de todos los departamentos.
+
+```sql
+SELECT AVG(presupuesto)
+FROM departamento;
++--------------------+
+| AVG(presupuesto)   |
++--------------------+
+| 147857.14285714287 |
++--------------------+
+```
+
+**3.** Calcula el valor mínimo del presupuesto de todos los departamentos.
+
+```sql
+SELECT MIN(presupuesto)
+FROM departamento;
++------------------+
+| MIN(presupuesto) |
++------------------+
+|                0 |
++------------------+
+```
+
+**4.** Calcula el nombre del departamento y el presupuesto que tiene asignado, del departamento con menor presupuesto.
+
+```sql
+SELECT nombre, presupuesto AS menor_presupuesto
+FROM departamento
+ORDER BY presupuesto ASC
+LIMIT 1;
++-----------+-------------------+
+| nombre    | menor_presupuesto |
++-----------+-------------------+
+| Proyectos |                 0 |
++-----------+-------------------+
+```
+
+**5.** Calcula el valor máximo del presupuesto de todos los departamentos.
+
+```sql
+SELECT MAX(presupuesto)
+FROM departamento;
++------------------+
+| MAX(presupuesto) |
++------------------+
+|           375000 |
++------------------+
+```
+
+**6.** Calcula el nombre del departamento y el presupuesto que tiene asignado, del departamento con mayor presupuesto.
+
+```sql
+SELECT nombre, presupuesto AS mayor_presupuesto
+FROM departamento
+ORDER BY presupuesto DESC
+LIMIT 1;
++--------+-------------------+
+| nombre | menor_presupuesto |
++--------+-------------------+
+| I+D    |            375000 |
++--------+-------------------+
+```
+
+**7.** Calcula el número total de empleados que hay en la tabla empleado.
+
+```sql
+SELECT COUNT(*)
+FROM empleado;
++----------+
+| COUNT(*) |
++----------+
+|       13 |
++----------+
+```
+
+**8.** Calcula el número de empleados que no tienen NULL en su segundo apellido.
+
+```sql
+SELECT COUNT(*)
+FROM empleado
+WHERE apellido2 IS NOT NULL;
++----------+
+| COUNT(*) |
++----------+
+|       11 |
++----------+
+```
+
+**9.** Calcula el número de empleados que hay en cada departamento. Tienes que devolver dos columnas, una con el nombre del departamento y otra con el número de empleados que tiene asignados.
+
+```sql
+SELECT d.nombre AS NombreDepartamento, COUNT(e.id_empleado) AS NumeroEmpleados
+FROM departamento AS d
+LEFT JOIN empleado AS e
+ON d.id_departamento = e.id_departamento
+GROUP BY d.nombre;
++--------------------+-----------------+
+| NombreDepartamento | NumeroEmpleados |
++--------------------+-----------------+
+| Desarrollo         |               3 |
+| Sistemas           |               3 |
+| Recursos Humanos   |               2 |
+| Contabilidad       |               1 |
+| I+D                |               2 |
+| Proyectos          |               0 |
+| Publicidad         |               0 |
++--------------------+-----------------+
+```
+
+**10.** Calcula el nombre de los departamentos que tienen más de 2 empleados. El resultado debe tener dos columnas, una con el nombre del departamento y otra con el número de empleados que tiene asignados.
+
+```sql
+SELECT d.nombre AS NombreDepartamento, COUNT(e.id_empleado) AS NumeroEmpleados
+FROM departamento AS d
+LEFT JOIN empleado AS e
+ON d.id_departamento = e.id_departamento
+GROUP BY d.nombre
+HAVING COUNT(e.id_empleado) > 2;
++--------------------+-----------------+
+| NombreDepartamento | NumeroEmpleados |
++--------------------+-----------------+
+| Desarrollo         |               3 |
+| Sistemas           |               3 |
++--------------------+-----------------+
+```
+
