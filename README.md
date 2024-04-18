@@ -831,6 +831,12 @@ WHERE e.id_departamento = d.id_departamento AND d.presupuesto NOT BETWEEN 100000
 ```sql
 SELECT DISTINCT d.nombre
 FROM empleado AS e, departamento AS d
-WHERE e.id_departamento = d.id_departamento AND e.apellido2 = NULL;
+WHERE e.id_departamento = d.id_departamento AND e.apellido2 IS NULL;
++--------------+
+| nombre       |
++--------------+
+| Contabilidad |
+| Sistemas     |
++--------------+
 ```
 
